@@ -11,6 +11,12 @@ from typing import List, Dict, Any, Optional
 class Dataset:
     """
     Classe de base pour stocker et analyser des données.
+    
+    Note: Les données sont copiées lors de l'initialisation pour éviter
+    les modifications externes. Le cache des statistiques est utilisé pour
+    améliorer les performances. Si vous modifiez self.data directement,
+    le cache ne sera pas invalidé - utilisez plutôt les méthodes filtrer()
+    et transformer() qui retournent de nouveaux objets Dataset.
     """
     
     def __init__(self, data: List[float], nom: str = "Dataset"):
@@ -40,12 +46,16 @@ class Dataset:
     def ecart_type(self) -> float:
         """Calcule l'écart-type des données."""
         if 'ecart_type' not in self._cache:
+            if len(self.data) < 2:
+                raise ValueError("L'écart-type nécessite au moins 2 valeurs")
             self._cache['ecart_type'] = statistics.stdev(self.data)
         return self._cache['ecart_type']
     
     def variance(self) -> float:
         """Calcule la variance des données."""
         if 'variance' not in self._cache:
+            if len(self.data) < 2:
+                raise ValueError("La variance nécessite au moins 2 valeurs")
             self._cache['variance'] = statistics.variance(self.data)
         return self._cache['variance']
     
@@ -188,8 +198,12 @@ class DatasetNumerique(Dataset):
             return [x for x in self.data if x < limite_basse or x > limite_haute]
         
         elif methode == 'zscore':
+            if len(self.data) < 2:
+                return []
             moy = self.moyenne()
             std = self.ecart_type()
+            if std == 0:
+                return []
             return [x for x in self.data if abs((x - moy) / std) > 3]
         
         return []
