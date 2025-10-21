@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def slice_me(family: list, start: int, end: int) -> list:
     """
     Slices each sublist in a 2D list from 'start' to 'end' indices.
@@ -13,7 +14,8 @@ def slice_me(family: list, start: int, end: int) -> list:
         list: A new 2D list with each sublist sliced from 'start' to 'end'.
 
     Raises:
-        ValueError: If the input is not a 2D list or if sublists have different lengths.
+        ValueError: If the input is not a 2D list or if sublists have
+            different lengths.
     """
     # Vérification des types de base
     if not isinstance(family, list):

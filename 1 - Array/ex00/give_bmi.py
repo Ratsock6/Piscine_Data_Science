@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def give_bmi(height: list[int | float],
              weight: list[int | float]) -> list[int | float]:
     """
@@ -20,6 +21,7 @@ def give_bmi(height: list[int | float],
     weight_array = np.array(weight)
     bmi = weight_array / (height_array ** 2)
     return bmi.tolist()
+
 
 def apply_limit(bmi: list[int | float], limit: int) -> list[bool]:
     """
