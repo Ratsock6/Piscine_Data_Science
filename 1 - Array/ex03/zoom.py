@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import sys
-from typing import Tuple
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -25,7 +23,8 @@ def center_crop(arr: np.ndarray, crop_h: int, crop_w: int) -> np.ndarray:
         Cropped view of the array with same ndim as input.
     """
     if arr.ndim not in (2, 3):
-        raise ValueError("Error: expected image with shape (H, W) or (H, W, C).")
+        raise ValueError("Error: expected image with shape "
+                         "(H, W) or (H, W, C).")
 
     h, w = arr.shape[:2]
     if crop_h > h or crop_w > w:
@@ -35,12 +34,13 @@ def center_crop(arr: np.ndarray, crop_h: int, crop_w: int) -> np.ndarray:
 
     y0 = (h - crop_h) // 2
     x0 = (w - crop_w) // 2
-    return arr[y0 : y0 + crop_h, x0 : x0 + crop_w]
+    return arr[y0: y0 + crop_h, x0: x0 + crop_w]
 
 
 def rgb_to_grayscale(arr: np.ndarray) -> np.ndarray:
     """
-    Convert an image to grayscale (H, W), accepting (H, W), (H, W, 3) or (H, W, 4).
+    Convert an image to grayscale (H, W), accepting (H, W),
+    (H, W, 3) or (H, W, 4).
 
     Uses luminance weights on the first three channels if present.
 
@@ -51,13 +51,15 @@ def rgb_to_grayscale(arr: np.ndarray) -> np.ndarray:
         gray = arr
     elif arr.ndim == 3:
         if arr.shape[2] < 3:
-            raise ValueError("Error: expected at least 3 channels to make grayscale.")
+            raise ValueError("Error: expected at least 3"
+                             " channels to make grayscale.")
         rgb = arr[..., :3].astype(np.float64)
         weights = np.array([0.2989, 0.5870, 0.1140], dtype=np.float64)
         # Grayscale = 0.2989×R + 0.5870×G + 0.1140×B
         gray = np.dot(rgb, weights)
     else:
-        raise ValueError("Error: expected image with shape (H, W) or (H, W, C).")
+        raise ValueError("Error: expected image with shape"
+                         " (H, W) or (H, W, C).")
 
     # Cast en uint8 si nécessaire
     if not np.issubdtype(gray.dtype, np.integer):
@@ -76,8 +78,6 @@ def main() -> None:
         print(f"New shape after slicing: {gray.shape}")
         print(gray)
         arr_to_show = gray
-
-
 
         plt.figure()
         if arr_to_show.ndim == 2:
