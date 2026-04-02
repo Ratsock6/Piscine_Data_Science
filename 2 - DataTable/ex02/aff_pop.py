@@ -1,90 +1,66 @@
-from load_csv import load
-import numpy as np
 import matplotlib.pyplot as plt
+from load_csv import load
 
-def convert_to_float(x):
+
+def parse_population(value: str) -> float:
     """
-    Converts string values with 'M' (million) or 'B' (billion)
-    suffixes to float numbers.
+    Convert population string with suffix (M, B, k) to a float.
 
-    Args:
-        x: The input value to convert, can be string or numeric.
-
-    Returns:
-        float: Converted value. Returns NaN if conversion fails.
-
-    Examples:
-        >>> convert_to_float('5M')
-        5000000.0
-        >>> convert_to_float('2.5B')
-        2500000000.0
+    For example: '65M' -> 65000000, '500k' -> 500000.
     """
-    try:
-        x = str(x).strip()
-        if x.endswith('M'):
-            return float(x[:-1]) * 1_000_000
-        elif x.endswith('B'):
-            return float(x[:-1]) * 1_000_000_000
-        return float(x)
-    except Exception:
-        return float('nan')
+    if isinstance(value, (int, float)):
+        return float(value)
+    value = str(value).strip()
+    multipliers = {"B": 1e9, "M": 1e6, "k": 1e3}
+    if value[-1] in multipliers:
+        return float(value[:-1]) * multipliers[value[-1]]
+    return float(value)
 
 
-def aff_pop(path: str = "population_total.csv") -> None:
+def plot_population(country1: str, country2: str) -> None:
     """
-    Visualizes population data for Turkey and France from 1800 to 2040.
+    Plot population projections for two countries from 1800 to 2050.
 
-    Loads population data from 'population_total.csv', processes it,
-    and creates a line plot showing population trends for both countries.
-    The y-axis is formatted to display values in millions (M) or billions (B).
-
-    Raises:
-        ValueError: If the DataFrame is empty or if a specified country
-        is not found.
-
-    Returns:
-        None: Displays the matplotlib plot.
+    Loads population_total.csv and displays a line chart
+    with title, axis labels and a legend per country.
     """
-    try:
-        df = load(path)
-        if df is None:
-            raise ValueError("DataFrame is empty")
-        df.set_index("country", inplace=True)
+    dataset = load("population_total.csv")
+    if dataset is None:
+        return
 
-        countries = ["Turkey", "France"]
-        start_year = 1800
-        end_year = 2040
+    all_years = dataset.columns[1:].astype(int)
+    mask = (all_years >= 1800) & (all_years <= 2050)
+    years = all_years[mask]
 
-        all_years = [int(col) for col in df.columns if col.isdigit()]
-        selected_years = [year for year in all_years
-                          if start_year <= year <= end_year]
-        str_years = list(map(str, selected_years))
+    for country in [country1, country2]:
+        row = dataset[dataset["country"] == country]
+        if row.empty:
+            print(f"Error: country '{country}' not found.")
+            return
+        values = row.iloc[0, 1:].values[mask]
+        values = [parse_population(v) for v in values]
+        plt.plot(years, values, label=country)
 
-        for country in countries:
-            if country not in df.index:
-                raise ValueError(f"{country} not found in dataset.")
+    def format_population(x, _):
+        """Format y-axis tick labels with M suffix."""
+        return f"{int(x / 1e6)}M"
 
-            years = sorted(map(int, str_years))
-            raw_values = df.loc[country, map(str, years)]
-            values = np.array([convert_to_float(val) for val in raw_values])
+    plt.gca().yaxis.set_major_formatter(
+        plt.FuncFormatter(format_population)
+    )
 
-            plt.plot(years, values, label=country)
-
-        plt.title("Population Projections")
-        plt.xlabel("Year")
-        plt.xticks(selected_years[::40])
-        plt.ylabel("Population")
-        plt.yticks(
-            range(20_000_000, 81_000_000, 20_000_000),
-            [f"{int(y/1e6)}M" for y in range(20_000_000,
-                                             81_000_000, 20_000_000)]
-        )
-        plt.legend()
-        plt.show()
-
-    except Exception as e:
-        print(f"Error: {e}")
+    plt.title("Population Projections")
+    plt.xlabel("Year")
+    plt.ylabel("Population")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 
-if __name__ == '__main__':
-    aff_pop("population_total.csv")
+def main():
+    """Entry point: compare population of France and Belgium."""
+    plot_population("France", "Belgium")
+
+
+if __name__ == "__main__":
+    main()

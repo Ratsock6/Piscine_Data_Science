@@ -1,50 +1,38 @@
-from load_csv import load
 import matplotlib.pyplot as plt
-import numpy as np
+from load_csv import load
 
-def aff_life(dataset):
+
+def plot_life_expectancy(country: str) -> None:
     """
-    Create a scatter plot showing the relationship between GDP per capita
-    and life expectancy.
+    Plot the life expectancy over time for a given country.
 
-    Parameters:
-    dataset (pd.DataFrame): The dataset containing 'GDP per capita' and
-    'Life expectancy' columns.
-
-    This function generates a scatter plot with GDP per capita on the x-axis
-    and life expectancy on the y-axis.
-    It displays the plot using matplotlib.
+    Loads life_expectancy_years.csv and displays a line chart
+    with title and axis labels.
     """
-    try:
-        if dataset is None:
-            raise AssertionError("The dataset is None")
-        df = load("life_expectancy_years.csv")
-        if df is None:
-            raise AssertionError("Failed to load dataset")
-        
-        df.set_index('country', inplace=True)
-        country = "United States"
-        if country not in df.index:
-            raise AssertionError(f"{country} not found in dataset")
-        
-        years = np.array(df.columns, dtype=int)
-        values = np.array(df.loc[country], dtype=float)
-
-        plt.plot(years, values, label=country)
-        plt.title("Life Expectancy Over Years")
-        plt.xlabel("Year")
-        plt.xticks(years[::40])
-        plt.ylabel("Life Expectancy (years)")
-        plt.yticks(range(30, 91, 10))
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
-
-    except AssertionError as error:
-        print(AssertionError.__name__ + ":", error)
+    dataset = load("life_expectancy_years.csv")
+    if dataset is None:
         return
 
- 
+    row = dataset[dataset["country"] == country]
+    if row.empty:
+        print(f"Error: country '{country}' not found in dataset.")
+        return
+
+    years = row.columns[1:].astype(int)
+    values = row.iloc[0, 1:].values.astype(float)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, values)
+    plt.title(f"{country} Life expectancy Projections")
+    plt.xlabel("Year")
+    plt.ylabel("Life expectancy")
+    plt.tight_layout()
+    plt.show()
+
+
+def main():
+    """Entry point: display life expectancy chart for France."""
+    plot_life_expectancy("France")
+
 if __name__ == "__main__":
-    data = load("life_expectancy_years.csv")
-    aff_life(data)
+    main()
