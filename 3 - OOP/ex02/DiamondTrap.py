@@ -10,19 +10,22 @@ class King(Baratheon, Lannister):
 
     def get_eyes(self) -> str:
         """Return the current eye color of the King."""
-        return self.eyes
+        return self.__dict__["eyes"]
 
     def set_eyes(self, color: str) -> None:
         """Set the eye color of the King."""
-        self.eyes = color
+        self.__dict__["eyes"] = color
 
     def get_hairs(self) -> str:
         """Return the current hair color of the King."""
-        return self.hairs
+        return self.__dict__["hairs"]
 
     def set_hairs(self, color: str) -> None:
         """Set the hair color of the King."""
-        self.hairs = color
+        self.__dict__["hairs"] = color
+
+    eyes = property(get_eyes, set_eyes)
+    hairs = property(get_hairs, set_hairs)
 
 
 def main():

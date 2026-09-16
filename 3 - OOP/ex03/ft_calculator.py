@@ -11,17 +11,17 @@ class calculator:
         print(self.vector)
 
     def __mul__(self, scalar) -> None:
-        """Multiply each element of the vector by a scalar and print the result."""
+        """Multiply each vector element by a scalar and print the result."""
         self.vector = [x * scalar for x in self.vector]
         print(self.vector)
 
     def __sub__(self, scalar) -> None:
-        """Subtract a scalar from each element of the vector and print the result."""
+        """Subtract a scalar from each element and print the result."""
         self.vector = [x - scalar for x in self.vector]
         print(self.vector)
 
     def __truediv__(self, scalar) -> None:
-        """Divide each element of the vector by a scalar and print the result."""
+        """Divide each vector element by a scalar and print the result."""
         if scalar == 0:
             print("Error: division by zero")
             return
